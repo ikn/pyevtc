@@ -1,0 +1,11 @@
+[
+    { "id": 0, "name": "normal" },
+    { "id": 1, "name": "crit" },
+    { "id": 2, "name": "glancing" },
+    { "id": 3, "name": "blocked" },
+    { "id": 4, "name": "evaded" },
+    { "id": 5, "name": "interrupt" },
+    { "id": 6, "name": "absorbed" },
+    { "id": 7, "name": "blinded" },
+    { "id": 8, "name": "kill" }
+]

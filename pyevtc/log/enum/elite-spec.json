@@ -1,0 +1,19 @@
+[
+    { "id": 5, "name": "druid" },
+    { "id": 7, "name": "daredevil" },
+    { "id": 18, "name": "berserker" },
+    { "id": 27, "name": "dragonhunter" },
+    { "id": 34, "name": "reaper" },
+    { "id": 40, "name": "chronomancer" },
+    { "id": 48, "name": "tempest" },
+    { "id": 52, "name": "herald" },
+    { "id": 55, "name": "soulbeast" },
+    { "id": 56, "name": "weaver" },
+    { "id": 57, "name": "holosmith" },
+    { "id": 58, "name": "deadeye" },
+    { "id": 59, "name": "mirage" },
+    { "id": 60, "name": "scourge" },
+    { "id": 61, "name": "spellbreaker" },
+    { "id": 62, "name": "firebrand" },
+    { "id": 63, "name": "renegade" }
+]

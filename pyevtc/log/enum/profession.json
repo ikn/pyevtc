@@ -1,0 +1,11 @@
+[
+    { "id": 1, "name": "guardian" },
+    { "id": 2, "name": "warrior" },
+    { "id": 3, "name": "engineer" },
+    { "id": 4, "name": "ranger" },
+    { "id": 5, "name": "thief" },
+    { "id": 6, "name": "elementalist" },
+    { "id": 7, "name": "mesmer" },
+    { "id": 8, "name": "necromancer" },
+    { "id": 9, "name": "revenant" }
+]

@@ -1,0 +1,7 @@
+[
+    { "id": 1, "name": "state change" },
+    { "id": 2, "name": "activation" },
+    { "id": 3, "name": "damage" },
+    { "id": 4, "name": "buff apply" },
+    { "id": 5, "name": "buff remove" }
+]

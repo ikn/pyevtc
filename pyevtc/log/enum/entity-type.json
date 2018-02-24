@@ -1,0 +1,5 @@
+[
+    { "id": 1, "name": "player" },
+    { "id": 2, "name": "npc" },
+    { "id": 3, "name": "gadget" }
+]

@@ -1,0 +1,12 @@
+[
+    { "id": 1, "name": "enter combat" },
+    { "id": 2, "name": "exit combat" },
+    { "id": 3, "name": "up" },
+    { "id": 4, "name": "dead" },
+    { "id": 5, "name": "downed" },
+    { "id": 6, "name": "spawn" },
+    { "id": 7, "name": "despawn" },
+    { "id": 8, "name": "health" },
+    { "id": 11, "name": "weapon swap" },
+    { "id": 12, "name": "max health" }
+]
