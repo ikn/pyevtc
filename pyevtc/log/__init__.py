@@ -1,123 +1,34 @@
-import abc
-
-from . import enum
+from . import entity, skill, event
 
 _SUPPORTED_SCHEMA_VERSIONS = ['1']
-
-
-class Entity (metaclass=abc.ABCMeta):
-    def __init__ (self, record):
-        self.id_ = record['id']
-        self.name = record['name']
-        self.toughness = record['toughness']
-        self.concentration = record['concentration']
-        self.healing = record['healing']
-        self.condition_damage = record['condition_damage']
-
-    def _str (self, *extra):
-        args = (repr(self.name),) + extra
-        return '{}({})'.format(type(self).__name__, ', '.join(args))
-
-    def __str__ (self):
-        return self._str()
-
-    def __repr__ (self):
-        return str(self)
-
-
-class Player (Entity):
-    def __init__ (self, record):
-        Entity.__init__(self, record)
-        self.profession = enum.profession.name[record['subtype']]
-        self.elite_spec = (
-            None if record['player_elite_spec'] is None
-            else enum.elite_spec.name[record['player_elite_spec']])
-        self.character_name = self.name
-        self.account = record['account']
-        self.subgroup = record['subgroup']
-        self.name += self.account
-
-    def __str__ (self):
-        return self._str(
-            self.profession if self.elite_spec is None else self.elite_spec)
-
-
-class NPC (Entity):
-    def __init__ (self, record):
-        Entity.__init__(self, record)
-        self.species = record['subtype']
-
-    def __str__ (self):
-        return self._str(str(self.species))
-
-
-class Gadget (Entity):
-    def __init__ (self, record):
-        Entity.__init__(self, record)
-        self.gadget_id = record['subtype']
-
-    def __str__ (self):
-        return self._str(str(self.gadget_id))
-
-
-def mk_entity (record):
-    type_ = enum.entity_type.name[record['type']]
-    cls = {
-        'player': Player,
-        'npc': NPC,
-        'gadget': Gadget
-    }[type_]
-    return cls(record)
-
-
-class Skill:
-    def __init__ (self, record):
-        self.id_ = record['id']
-        self.name = enum.skill.name.get(record['id'], record['name'])
-
-    def __str__ (self):
-        return '{}({})'.format(type(self).__name__, repr(self.name))
-
-    __repr__ = __str__
-
-
-class Event:
-    def __init__ (self):
-        self.time = None
-        self.source_entity = None
-        self.dest_entity = None
-        self.skill = None
-
-    def __str__ (self):
-        return '[{}]'.format(self.time)
-
-    def __repr__ (self):
-        return '[{}: {}/{} -> {}]'.format(
-            self.time, self.source_entity, self.skill, self.dest_entity)
 
 
 class Log:
     def __init__ (self, store):
         self._store = store
+        self._table_columns = {'metadata': 2}
         self._schema_version = self._query_metadata('pyevtc schema version')
         if self._schema_version not in _SUPPORTED_SCHEMA_VERSIONS:
             raise ValueError(
                 'store has unsupported schema version:', self._schema_version)
+        self._update_table_columns(['entities', 'skills', 'events'])
 
-    def _query_require (self, sql, params=()):
-        c = self._store.query(sql, params)
-        record = c.fetchone()
-        if record is None:
-            raise ValueError('required data, found none')
-        record_empty = c.fetchone()
-        if record_empty is not None:
-            raise ValueError('required one result, found more')
-        return record
+    def _update_table_columns (self, tables):
+        for table in tables:
+            quoted_table = self._store.quote_identifier(table)
+            cursor = self._store.query(
+                'SELECT * FROM ' + quoted_table + ' LIMIT 1')
+            self._table_columns[table] = len(cursor.description)
+
+    def _group_columns (self, cursor, groups):
+        groups_columns = [(group, self._table_columns[table])
+                          for group, table in groups]
+        return self._store.group_columns(cursor, groups_columns)
 
     def _query_metadata(self, name):
-        record = self._query_require(
-            'SELECT * FROM `metadata` WHERE `name` = ?', (name,))
-        return record['value']
+        row = self._store.single_row(self._store.name_columns(self._store.query(
+            'SELECT * FROM "metadata" WHERE "name" = ?', [name])))
+        return row['value']
 
     @property
     def arcdps_version (self):
@@ -127,33 +38,59 @@ class Log:
     def encounter_id (self):
         return self._query_metadata('encounter_id')
 
-    def _entities (self, where_clause, params):
-        query = 'SELECT * from `entities`'
-        for record in self._store.query(query + ' ' + where_clause, params):
-            yield mk_entity(record)
+    def entities (self, types=None):
+        if types is None:
+            where_clause = ''
+            params = []
+        else:
+            where_clause = 'WHERE ' + ' OR '.join('"type" = ?' for t in types)
+            params = [enum.entity_type.id_[t.db_type] for t in types]
 
-    @property
-    def entities (self):
-        return self._entities('', ())
-
-    @property
-    def players (self):
-        return self._entities('WHERE `type` = ?',
-                              (enum.entity_type.id_['player'],))
-
-    @property
-    def npcs (self):
-        return self._entities('WHERE `type` = ?',
-                              (enum.entity_type.id_['npc'],))
-
-    @property
-    def gadgets (self):
-        return self._entities('WHERE `type` = ?',
-                              (enum.entity_type.id_['gadget'],))
+        sql = 'SELECT * from "entities" ' + where_clause
+        for row in self._store.name_columns(self._store.query(sql, params)):
+            yield entity.create(row)
 
     @property
     def skills (self):
-        for record in self._store.query('SELECT * from `skills`'):
-            yield Skill(record)
+        sql = 'SELECT * FROM "skills"'
+        for row in self._store.name_columns(self._store.query(sql)):
+            yield skill.Skill(row['skills'])
 
-    # TODO: events
+    def events (self, types=None):
+        if types is None or not types:
+            where_clause = ''
+            params = []
+        else:
+            cases = []
+            params = []
+            for t in types:
+                if t.db_type is None:
+                    cases.append('1')
+                elif t.db_subtype is None:
+                    cases.append('"ev"."type" = ?')
+                    params.append(enum.event_type.id_[t.db_type])
+                else:
+                    cases.append('("ev"."type" = ? AND "ev"."subtype" = ?)')
+                    params.append(enum.event_type.id_[t.db_type])
+                    db_subtype_enum = event.db_subtype_enums[t.db_type]
+                    params.append(db_subtype_enum.id_[t.db_subtype])
+            where_clause = 'WHERE ' + ' OR '.join(cases)
+
+        sql = '''
+            SELECT "ev".*, "se".*, "de".*, "s".*
+            FROM "events" AS "ev"
+            LEFT JOIN "entities" AS "se" ON "se"."id" = "ev"."source_entity_id"
+            LEFT JOIN "entities" AS "de" ON "de"."id" = "ev"."dest_entity_id"
+            INNER JOIN "skills" AS "s" ON "s"."id" = "ev"."skill_id"
+            {}
+            ORDER BY "ev"."time" ASC
+        '''.format(where_clause)
+        cursor = self._store.query(sql, params)
+
+        for row in self._group_columns(cursor, [
+            ('event', 'events'),
+            ('source entity', 'entities'),
+            ('dest entity', 'entities'),
+            ('skill', 'skills'),
+        ]):
+            yield event.create(row)

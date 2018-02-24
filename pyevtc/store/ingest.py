@@ -98,7 +98,7 @@ many_defn['events']['sql'] = '''
         `dest_entity_id`,
         `skill_id`,
         `value`,
-        `damage`,
+        `buff_damage`,
         `team`,
         `hit_result`,
         `hit_barrier`
@@ -110,7 +110,7 @@ many_defn['events']['sql'] = '''
         :dest_entity_id,
         :skill_id,
         :value,
-        :damage,
+        :buff_damage,
         :team,
         :hit_result,
         :hit_barrier
@@ -143,7 +143,7 @@ def transform_event (e):
         'dest_entity_id': hash(e['dest entity id']),
         'skill_id': hash(e['skill id']),
         'value': e['value'],
-        'damage': e['damage'],
+        'buff_damage': e['buff damage'],
         'team': e['team'],
         'hit_result': e['hit result'],
         'hit_barrier': e['hit barrier'],

@@ -1,3 +1,4 @@
+import itertools
 import os
 import tempfile
 import sqlite3
@@ -5,6 +6,7 @@ import sqlite3
 from . import ingest
 
 _SCHEMA_VERSION = '1'
+_ROWS_AT_ONCE = 100
 
 
 def _load_schema (db):
@@ -50,11 +52,58 @@ def _load_data (raw_log, db):
 class Store:
     def __init__ (self, db, path):
         self._db = db
-        db.row_factory = sqlite3.Row
         self.path = path
 
+    def quote_identifier (self, ident):
+        # sometimes you're just not allowed to use parameter substitution
+        return '"' + ident.replace('"', '""') + '"'
+
     def query (self, sql, params=()):
-        return self._db.execute(sql, params)
+        c = self._db.cursor()
+        c.arraysize = _ROWS_AT_ONCE
+        return c.execute(sql, params)
+
+    def name_columns (self, cursor):
+        col_names = [col[0] for col in cursor.description]
+        for row in cursor:
+            yield dict(zip(col_names, row))
+
+    def group_columns (self, cursor, groups_columns):
+        tables_cols = [cols for group, cols in groups_columns]
+        tables_start = (0,) + tuple(itertools.accumulate(tables_cols))
+        total_cols = tables_start[-1]
+        col_names = [col[0] for col in cursor.description]
+
+        for row in cursor:
+            if len(row) != total_cols:
+                raise ValueError(
+                    'query returned row with fewer columns than expected:', row,
+                    'wanted:', groups_columns)
+            grouped_row = {}
+            for t_idx, (group, cols) in enumerate(groups_columns):
+                start = tables_start[t_idx]
+                values = row[start:start + cols]
+                # FIXME: is there a more correct way?  (half-empty join)
+                if all(v is None for v in values):
+                    grouped_row[group] = None
+                else:
+                    grouped_row[group] = dict(zip(
+                        col_names[start:start + cols],
+                        row[start:start + cols]))
+            yield grouped_row
+
+    def single_row (self, rows):
+        try:
+            row = next(rows)
+        except StopIteration:
+            raise ValueError('required data, found none')
+        try:
+            row_empty = next(rows)
+        except StopIteration:
+            pass
+        else:
+            raise ValueError('required one result, found more')
+        return row
 
 
 def create (raw_log, disk=False, path=None):

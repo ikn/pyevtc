@@ -21,8 +21,9 @@ skill = Enum('skill')
 
 # event
 event_type = Enum('event-type')
-state_change = Enum('state-change')
+state_change_type = Enum('state-change-type')
+weapon_set = Enum('weapon-set')
 activation_type = Enum('activation-type') # bitmask?
 hit_result = Enum('hit-result') # bitmask?
-buff_remove = Enum('buff-remove')
+buff_remove_type = Enum('buff-remove-type')
 team = Enum('team')

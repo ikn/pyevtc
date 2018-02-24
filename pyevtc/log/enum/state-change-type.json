@@ -7,6 +7,13 @@
     { "id": 6, "name": "spawn" },
     { "id": 7, "name": "despawn" },
     { "id": 8, "name": "health" },
+    { "id": 9, "name": "log start" },
+    { "id": 10, "name": "log end" },
     { "id": 11, "name": "weapon swap" },
-    { "id": 12, "name": "max health" }
+    { "id": 12, "name": "max health" },
+    { "id": 13, "name": "pov" },
+    { "id": 14, "name": "language" },
+    { "id": 15, "name": "game version" },
+    { "id": 16, "name": "server shard" },
+    { "id": 17, "name": "reward" }
 ]

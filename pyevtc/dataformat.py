@@ -32,7 +32,7 @@ defn_event = sum([
     d.named('source entity id', d.parse(8, p_uint)),
     d.named('dest entity id', d.parse(8, p_uint)),
     d.named('value', d.parse(4, p_uint)),
-    d.named('damage', d.parse(4, p_uint)),
+    d.named('buff damage', d.parse(4, p_uint)),
     d.named('buff overstack', d.parse(2, p_uint)),
     d.named('skill id', d.parse(2, p_uint)),
     d.named('source entity encounter id', d.parse(2, p_uint)),
