@@ -1,0 +1,10 @@
+pyevtc (prerelease).
+
+Python 3 library for parsing and analysing arcdps combat logs (EVTC format).
+Currently in a very early stage of development.
+
+* generally works by reading the whole log into a SQLite database and then
+  providing an interface to that, but also allows breaking up the process to
+  gain access to the log at various stages
+* uses iterators throughout, never reading large amounts of data into memory
+  (unless you use an in-memory SQLite database)
