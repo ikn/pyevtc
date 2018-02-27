@@ -75,7 +75,7 @@ class Definition:
     def save (self):
         return set().union(*(p.save for p in self))
 
-    def read_iter (self, sr):
+    def read (self, sr):
         saved = {}
 
         for part in self:
@@ -102,7 +102,7 @@ class RepeatDefinition (Definition):
     def _read (self, saved, sr):
         for i, item in enumerate(self._get_iter(saved)):
             try:
-                for result in self._defn.read_iter(sr):
+                for result in self._defn.read(sr):
                     yield result.wrap_name(ResultPathIndex(i))
             except util.WrappedError as e:
                 if isinstance(e.exc, EOFError) and self._ignore_eof:
