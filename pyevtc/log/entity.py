@@ -63,7 +63,8 @@ class Gadget (Entity):
         return self._str()
 
 
-types = (Player, NPC, Gadget)
+types = [v for v in locals().values()
+         if isinstance(v, type) and issubclass(v, Entity) and v is not Entity]
 _type_by_db_type = {t.db_type: t for t in types}
 
 def create (row):

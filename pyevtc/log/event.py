@@ -80,7 +80,33 @@ class MaxHealthEvent (StateChangeEvent):
         return self._str('{} -> {}'.format(self.source_entity, self.max_health))
 
 
-# TODO: activation, damage, buff apply, buff remove
+class ActivationEvent (Event):
+    db_type = 'activation'
+
+    def __init__ (self, row):
+        Event.__init__(self, row)
+        self.source_entity = (None if row['source entity'] is None
+                              else entity.create(row['source entity']))
+        self.skill = skill.Skill(row['skill'])
+        self.cast_time = row['event']['value'] / 1000
+
+    def __str__ (self):
+        return self._str(str(self.skill))
+
+
+class NormalActivationEvent (ActivationEvent):
+    db_subtype = 'normal'
+class QuicknessActivationEvent (ActivationEvent):
+    db_subtype = 'quickness'
+class CancelChannelEvent (ActivationEvent):
+    db_subtype = 'cancel-channel'
+class CancelCastEvent (ActivationEvent):
+    db_subtype = 'cancel-cast'
+class CompleteActivationEvent (ActivationEvent):
+    db_subtype = 'complete'
+
+
+# TODO: damage, buff apply, buff remove
 """
 class CombatEvent:
     def __init__ (self, row):
@@ -97,13 +123,8 @@ class CombatEvent:
 """
 
 
-types = (
-    Event,
-        StateChangeEvent,
-            EnterCombatEvent, ExitCombatEvent, UpEvent, DeadEvent, DownedEvent,
-            SpawnEvent, DespawnEvent, HealthEvent, WeaponSwapEvent,
-            MaxHealthEvent
-)
+types = [v for v in locals().values()
+         if isinstance(v, type) and issubclass(v, Event)]
 _type_by_db_type = {(t.db_type, t.db_subtype): t for t in types}
 
 db_subtype_enums = {

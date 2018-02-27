@@ -1,7 +1,7 @@
 [
     { "id": 1, "name": "normal" },
     { "id": 2, "name": "quickness" },
-    { "id": 3, "name": "start-cancel" },
-    { "id": 4, "name": "cancel" },
-    { "id": 5, "name": "full" }
+    { "id": 3, "name": "cancel-channel" },
+    { "id": 4, "name": "cancel-cast" },
+    { "id": 5, "name": "complete" }
 ]
