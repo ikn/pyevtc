@@ -106,7 +106,22 @@ class CompleteActivationEvent (ActivationEvent):
     db_subtype = 'complete'
 
 
-# TODO: damage, buff apply, buff remove
+class DamageEvent (Event):
+    db_type = 'damage'
+
+    def __init__ (self, row):
+        Event.__init__(self, row)
+        self.damage = row['event']['value']
+        self.result = enum.hit_result.name[row['event']['hit_result']]
+        self.mitigated = self.result in (
+            'blocked', 'evaded', 'absorbed', 'blinded'
+        )
+
+    def __str__ (self):
+        return self._str('{} {}'.format(self.result, self.damage))
+
+
+# TODO: buff apply, buff remove
 """
 class CombatEvent:
     def __init__ (self, row):
