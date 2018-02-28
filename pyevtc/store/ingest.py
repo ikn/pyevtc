@@ -98,7 +98,6 @@ many_defn['events']['sql'] = '''
         `dest_entity_id`,
         `skill_id`,
         `value`,
-        `buff_damage`,
         `team`,
         `hit_result`,
         `hit_barrier`
@@ -110,7 +109,6 @@ many_defn['events']['sql'] = '''
         :dest_entity_id,
         :skill_id,
         :value,
-        :buff_damage,
         :team,
         :hit_result,
         :hit_barrier
@@ -118,6 +116,9 @@ many_defn['events']['sql'] = '''
 '''
 
 def transform_event (e):
+    value = e['value']
+    hit_result = e['hit result']
+
     type_id = log.enum.event_type.id_
     if e['is state change']:
         type_ = type_id['state change']
@@ -126,14 +127,21 @@ def transform_event (e):
         type_ = type_id['activation']
         subtype = e['is activation']
     elif e['is buff remove']:
-        type_ = type_id['buff remove']
+        type_ = type_id['buff']
         subtype = e['is buff remove']
     elif e['is buff']:
-        type_ = type_id['buff apply']
-        subtype = None
+        if value == 0:
+            type_ = type_id['damage']
+            subtype = log.enum.damage_type.id_['condition']
+            value = e['buff damage']
+            hit_result = (log.enum.hit_result.id_['absorbed']
+                          if value == 0 else log.enum.hit_result.id_['normal'])
+        else:
+            type_ = type_id['buff']
+            subtype = log.enum.buff_type.id_['apply']
     else:
         type_ = type_id['damage']
-        subtype = None
+        subtype = log.enum.damage_type.id_['power']
 
     return {
         'type': type_,
@@ -142,10 +150,9 @@ def transform_event (e):
         'source_entity_id': hash(e['source entity id']),
         'dest_entity_id': hash(e['dest entity id']),
         'skill_id': hash(e['skill id']),
-        'value': e['value'],
-        'buff_damage': e['buff damage'],
+        'value': value,
         'team': e['team'],
-        'hit_result': e['hit result'],
+        'hit_result': hit_result,
         'hit_barrier': e['hit barrier'],
     }
 

@@ -30,13 +30,12 @@ CREATE TABLE "skills" (
 DROP TABLE IF EXISTS "events";
 CREATE TABLE "events" (
     "type" INT NOT NULL,
-    "subtype" INT,
+    "subtype" INT NOT NULL,
     "time" INT NOT NULL,
     "source_entity_id" INT NOT NULL REFERENCES "entities" ("id"),
     "dest_entity_id" INT NOT NULL REFERENCES "entities" ("id"),
     "skill_id" INT NOT NULL REFERENCES "skills" ("id"),
     "value" INT NOT NULL,
-    "buff_damage" INT NOT NULL,
     "team" INT NOT NULL,
     "hit_result" INT NOT NULL,
     "hit_barrier" INT NOT NULL

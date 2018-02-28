@@ -8,12 +8,18 @@ class Event:
 
     def __init__ (self, row):
         self.time = row['event']['time']
+        self.source_entity = (None if row['source entity'] is None
+                              else entity.create(row['source entity']))
+        self.dest_entity = (None if row['dest entity'] is None
+                            else entity.create(row['dest entity']))
 
     def _str (self, extra=None):
+        if extra is None and self.source_entity is not None:
+            extra = str(self.source_entity)
         if extra is None:
-            return '{}({})'.format(type(self).__name__, self.time)
+            return '{}(@{})'.format(type(self).__name__, self.time)
         else:
-            return '{}({}: {})'.format(type(self).__name__, self.time, extra)
+            return '{}(@{}: {})'.format(type(self).__name__, self.time, extra)
 
     def __str__ (self):
         return self._str()
@@ -27,11 +33,6 @@ class StateChangeEvent (Event):
 
     def __init__ (self, row):
         Event.__init__(self, row)
-        self.source_entity = (None if row['source entity'] is None
-                              else entity.create(row['source entity']))
-
-    def __str__ (self):
-        return self._str(str(self.source_entity))
 
 
 class EnterCombatEvent (StateChangeEvent):
@@ -111,31 +112,52 @@ class DamageEvent (Event):
 
     def __init__ (self, row):
         Event.__init__(self, row)
+        self.skill = skill.Skill(row['skill'])
+        self.team = enum.team.name[row['event']['team']]
         self.damage = row['event']['value']
         self.result = enum.hit_result.name[row['event']['hit_result']]
         self.mitigated = self.result in (
             'blocked', 'evaded', 'absorbed', 'blinded'
         )
+        self.hit_barrier = bool(row['event']['hit_barrier'])
 
     def __str__ (self):
-        return self._str('{} {}'.format(self.result, self.damage))
+        return self._str('{} {} {}'.format(
+            self.skill, self.result, self.damage))
 
 
-# TODO: buff apply, buff remove
-"""
-class CombatEvent:
+class PowerDamageEvent (DamageEvent):
+    db_subtype = 'power'
+class ConditionDamageEvent (DamageEvent):
+    db_subtype = 'condition'
+
+
+class BuffEvent (Event):
+    db_type = 'buff'
+
     def __init__ (self, row):
         Event.__init__(self, row)
-        self.source_entity = (entity.create(row['source entity'])
-        self.dest_entity = else entity.create(row['dest entity'])
         self.skill = skill.Skill(row['skill'])
         self.team = enum.team.name[row['event']['team']]
 
     def __str__ (self):
-        return '{}({}: {}/{} -> {})'.format(
-            type(self).__name__,
-            self.time, self.source_entity, self.skill, self.dest_entity)
-"""
+        return self._str(str(self.skill))
+
+
+class BuffApplyEvent (BuffEvent):
+    db_subtype = 'apply'
+
+    def __init__ (self, row):
+        BuffEvent.__init__(self, row)
+        self.duration = row['event']['value'] / 1000
+
+
+class BuffRemoveAllStacksEvent (BuffEvent):
+    db_subtype = 'remove all stacks'
+class BuffRemoveStackEvent (BuffEvent):
+    db_subtype = 'remove single stack'
+class BuffResetEvent (BuffEvent):
+    db_subtype = 'reset'
 
 
 types = [v for v in locals().values()
@@ -145,7 +167,8 @@ _type_by_db_type = {(t.db_type, t.db_subtype): t for t in types}
 db_subtype_enums = {
     'state change': enum.state_change_type,
     'activation': enum.activation_type,
-    'buff remove': enum.buff_remove_type,
+    'damage': enum.damage_type,
+    'buff': enum.buff_type,
 }
 
 def create (row):

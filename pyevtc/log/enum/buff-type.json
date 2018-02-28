@@ -1,0 +1,6 @@
+[
+    { "id": 0, "name": "apply" },
+    { "id": 1, "name": "remove all stacks" },
+    { "id": 2, "name": "remove single stack" },
+    { "id": 3, "name": "reset" }
+]
