@@ -22,6 +22,12 @@ class Entity (metaclass=abc.ABCMeta):
     def __repr__ (self):
         return str(self)
 
+    def __hash__ (self):
+        return self.id_
+
+    def __eq__ (self, other):
+        return isinstance(other, Entity) and self.id_ == other.id_
+
 
 class Player (Entity):
     db_type = 'player'
