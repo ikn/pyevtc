@@ -15,9 +15,9 @@ defn_entity = sum([
     d.named('toughness', d.parse(2, p_uint)),
     d.named('concentration', d.parse(2, p_uint)),
     d.named('healing', d.parse(2, p_uint)),
-    d.const_null(2),
+    d.named('hitbox width', d.parse(2, p_uint)),
     d.named('condition damage', d.parse(2, p_uint)),
-    d.const_null(2),
+    d.named('hitbox height', d.parse(2, p_uint)),
     d.named('name', d.parse(64, parse_name)),
     d.const_null(4),
 ])
@@ -56,7 +56,7 @@ defn_event = sum([
 definition = sum([
     d.const(b'EVTC'),
     d.named('arcdps version', d.parse(8, p.str_('ascii'))),
-    d.const_null(1),
+    d.named('arcdps revision', d.parse(1, p_uint)),
     d.named('encounter id', d.parse(2, p_uint)),
     d.const_null(1),
     d.named('num entities', d.parse(4, p_uint)),

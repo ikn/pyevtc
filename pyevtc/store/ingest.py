@@ -7,6 +7,8 @@ def metadata_params (raw_log_section, schema_version):
     for item in raw_log_section:
         if item.path == ('arcdps version',):
             yield ('arcdps version', item.value)
+        if item.path == ('arcdps revision',):
+            yield ('arcdps revision', item.value)
         elif item.path == ('encounter id',):
             yield ('encounter id', str(item.value))
 
