@@ -7,5 +7,7 @@
     { "id": 5, "name": "interrupt" },
     { "id": 6, "name": "absorbed" },
     { "id": 7, "name": "blinded" },
-    { "id": 8, "name": "kill" }
+    { "id": 8, "name": "kill" },
+
+    { "id": 16, "name": "glancing" }
 ]
