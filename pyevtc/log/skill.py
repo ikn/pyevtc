@@ -12,3 +12,9 @@ class Skill:
         return '{}({})'.format(type(self).__name__, repr(self.name))
 
     __repr__ = __str__
+
+    def __hash__ (self):
+        return self.id_
+
+    def __eq__ (self, other):
+        return isinstance(other, Skill) and self.id_ == other.id_
