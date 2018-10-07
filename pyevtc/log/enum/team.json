@@ -1,4 +1,8 @@
 [
     { "id": 0, "name": "ally" },
-    { "id": 1, "name": "enemy" }
+    { "id": 1, "name": "enemy" },
+    { "id": 2, "name": "unknown (2)" },
+    { "id": 3, "name": "unknown (3)" },
+    { "id": 4, "name": "unknown (4)" },
+    { "id": 5, "name": "unknown (5)" }
 ]
