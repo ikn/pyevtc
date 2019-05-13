@@ -8,6 +8,7 @@
     { "id": 6, "name": "absorbed" },
     { "id": 7, "name": "blinded" },
     { "id": 8, "name": "kill" },
+    { "id": 9, "name": "down" },
 
     { "id": 16, "name": "glancing" }
 ]

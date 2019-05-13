@@ -15,5 +15,16 @@
     { "id": 14, "name": "language" },
     { "id": 15, "name": "game version" },
     { "id": 16, "name": "server shard" },
-    { "id": 17, "name": "reward" }
+    { "id": 17, "name": "reward" },
+    { "id": 18, "name": "first buff" },
+    { "id": 19, "name": "position" },
+    { "id": 20, "name": "velocity" },
+    { "id": 21, "name": "direction" },
+    { "id": 22, "name": "team" },
+    { "id": 23, "name": "target" },
+    { "id": 24, "name": "targetable" },
+    { "id": 25, "name": "map id" },
+    { "id": 26, "name": "stack active" },
+    { "id": 27, "name": "stack reset" },
+    { "id": 29, "name": "guilde" }
 ]

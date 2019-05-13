@@ -110,7 +110,6 @@ class RepeatDefinition (Definition):
                 else:
                     raise
 
-
 empty = Definition(())
 
 
@@ -171,3 +170,9 @@ def repeat_until_eof (defn):
             yield None
 
     return RepeatDefinition(get_iter, defn, ignore_eof=True)
+
+def dispatch (arg_names, get_defn):
+    def read (saved, sr):
+        return get_defn(*(saved[name] for name in arg_names)).read(sr)
+
+    return Definition((_Part(read, set(arg_names)),))
